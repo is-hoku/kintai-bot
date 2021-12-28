@@ -4,7 +4,8 @@ import (
 	"context"
 	"log"
 
-	"github.com/is-hoku/kintai-bot/interfaces/database"
+	"kintai-bot/app/interfaces/database"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

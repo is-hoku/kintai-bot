@@ -1,6 +1,6 @@
 package usecase
 
-import "github.com/is-hoku/kintai-bot/domain"
+import "kintai-bot/app/domain"
 
 type UserRepository interface {
 	Store(domain.User) error

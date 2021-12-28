@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/is-hoku/kintai-bot/domain"
+	"kintai-bot/app/domain"
 )
 
 type UserInteractor struct {

@@ -3,7 +3,8 @@ package infrastructure
 import (
 	"os"
 
-	"github.com/is-hoku/kintai-bot/interfaces/controllers"
+	"kintai-bot/app/interfaces/controllers"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )

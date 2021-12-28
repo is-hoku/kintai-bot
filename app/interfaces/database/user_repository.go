@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/is-hoku/kintai-bot/domain"
+	"kintai-bot/app/domain"
+
 	"go.mongodb.org/mongo-driver/bson"
 )
 

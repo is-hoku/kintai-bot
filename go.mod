@@ -1,4 +1,4 @@
-module github.com/is-hoku/kintai-bot
+module kintai-bot
 
 go 1.17
 

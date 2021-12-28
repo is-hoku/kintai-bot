@@ -3,7 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/is-hoku/kintai-bot/infrastructure"
+	"kintai-bot/app/infrastructure"
+
 	"github.com/joho/godotenv"
 )
 

@@ -3,9 +3,10 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/is-hoku/kintai-bot/domain"
-	"github.com/is-hoku/kintai-bot/interfaces/database"
-	"github.com/is-hoku/kintai-bot/usecase"
+	"kintai-bot/app/domain"
+	"kintai-bot/app/interfaces/database"
+	"kintai-bot/app/usecase"
+
 	"github.com/labstack/echo"
 )
 

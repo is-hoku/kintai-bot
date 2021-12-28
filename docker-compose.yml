@@ -5,14 +5,15 @@ services:
     app:
         depends_on:
             - db
-        build: "./app"
+        build:
+            dockerfile: ./Dockerfile
         ports:
             - "80:80"
         tty: true
         volumes:
-            - ./app:/go/src/app
+            - .:/go/src
         container_name: app
-
+    
     db:
         image: mongo:latest
         ports:
