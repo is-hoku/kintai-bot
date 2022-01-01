@@ -8,12 +8,12 @@ services:
         build:
             dockerfile: ./Dockerfile
         ports:
-            - "80:80"
+            - "8080:8080"
         tty: true
         volumes:
             - .:/go/src
         container_name: app
-    
+
     db:
         image: mongo:latest
         ports:

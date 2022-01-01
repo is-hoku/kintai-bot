@@ -1,0 +1,11 @@
+[
+	{
+		"insert": "users",
+		"documents": [
+		{
+			"email": "test@example.com",
+			"freee_id": 123456
+		}
+		]
+	}
+]
