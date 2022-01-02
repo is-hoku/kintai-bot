@@ -9,10 +9,14 @@ services:
             dockerfile: ./Dockerfile
         ports:
             - "8080:8080"
+        expose:
+            - "8080"
         tty: true
         volumes:
             - .:/go/src
         container_name: app
+        networks:
+            - user
 
     db:
         image: mongo:latest
@@ -21,3 +25,9 @@ services:
         volumes:
             - ./db:/data/db 
         container_name: db
+        networks:
+            - user
+
+networks:
+    user:
+        external: true
