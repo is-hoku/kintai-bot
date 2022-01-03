@@ -20,7 +20,7 @@ func NewTokenDBHandler() database.TokenDBHandler {
 	if err != nil {
 		log.Fatal(err)
 	}
-	collection := client.Database("kintai").Collection("token")
+	collection := client.Database("kintai").Collection("tokens")
 	return &TokenDBHandler{collection}
 }
 

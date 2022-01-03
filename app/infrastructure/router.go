@@ -24,7 +24,7 @@ func Init() {
 	e.POST("/user", userController.Create)
 
 	e.GET("/token/:company_id", tokenController.Show)
-	e.PUT("/token/:company_id", tokenController.Update)
+	e.PUT("/token", tokenController.Update)
 
 	serverPort := os.Getenv("SERVER_PORT")
 	e.Logger.Fatal(e.Start(serverPort))
