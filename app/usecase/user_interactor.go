@@ -13,8 +13,7 @@ func (interactor *UserInteractor) Add(u domain.User) (err error) {
 	return
 }
 
-func (UserInteractor *UserInteractor) UserByEmail(email string) (user domain.User, err error) {
-	//filter := []byte(fmt.Sprintf(`{"email": %s}`, email))
-	user, err = UserInteractor.UserRepository.FindByEmail(email)
+func (interactor *UserInteractor) UserByEmail(email string) (user domain.User, err error) {
+	user, err = interactor.UserRepository.FindByEmail(email)
 	return
 }

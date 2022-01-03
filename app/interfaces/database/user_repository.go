@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"fmt"
 
 	"kintai-bot/app/domain"
 
@@ -14,8 +13,7 @@ type UserRepository struct {
 }
 
 func (repo *UserRepository) Store(u domain.User) (err error) {
-	result, err := repo.InsertOne(context.TODO(), u)
-	fmt.Printf("%s", result)
+	_, err = repo.InsertOne(context.TODO(), u)
 	return
 }
 
