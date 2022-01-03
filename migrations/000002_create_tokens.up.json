@@ -1,0 +1,12 @@
+[
+	{
+		"insert": "tokens",
+		"documents": [
+		{
+			"company_id": 123,
+			"access_token": "test",
+			"refresh_token": "test"
+		}
+		]
+	}
+]
