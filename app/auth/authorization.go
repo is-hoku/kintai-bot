@@ -2,8 +2,11 @@ package auth
 
 import (
 	"fmt"
+	"kintai-bot/app/common"
+	"kintai-bot/app/interfaces/controllers"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/labstack/echo"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,8 +21,14 @@ type AuthorizationCodeURL struct {
 	URL string `bson:"url" json:"url"`
 }
 
-func Auth(c echo.Context) error {
+func (controller *controllers.TokenController) Auth(c echo.Context) error {
 	// if アクセストークンがDBにあればNULLをかえす
+
+	filter, err := strconv.Atoi(c.Param("company_id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, common.NewErrorResponse(400, "No Parameters"))
+	}
+	token, err := controller.Interactor.TokenByCompanyID(filter)
 	// else アクセストークンがなければURLをかえして認可、アクセストークンを取得
 	fmt.Println("REDIRECT_URL=", os.Getenv("REDIRECT_URL"))
 	conf := &oauth2.Config{
