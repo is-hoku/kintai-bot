@@ -6,7 +6,7 @@
 一回の入力で全ての勤怠入力をするために、この Slack App を作成した。
 
 ## アーキテクチャ
-Slack からのスラッシュコマンドを受信する Bolt Server (https://github.com/is-hoku/kintai-bot-bolt) 、 freee API を叩く API Client と、ユーザの Slack に登録してある Email と freee ID、また Company ID と Token を紐付けるための DB, API Server から構成される。
+Slack からのスラッシュコマンドを受信する Bolt Server ([is-hoku/kintai-bot-bolt](https://github.com/is-hoku/kintai-bot-bolt)) と、ユーザの Slack に登録してある Email と freee ID、また Company ID と Token を紐付けるための DB, API Server / freee API を叩く API Client から構成される。
 
 ![kintai-bot-figma](https://user-images.githubusercontent.com/52068717/151113691-66bc4745-b2cb-47b4-a9ef-3cc4c333dac4.png)
 
@@ -51,3 +51,7 @@ API を叩いて打刻した後、 Slash Command を実行したアカウント�
 - company_id と company_name の取得と環境変数へのセット
 - Slack のシークレットトークンなどの環境変数へのセット
 - freee App の Client ID と Client Secret の取得と環境変数へのセット
+
+## Inspirations and References
+- [igsr5/time-management-go](https://github.com/igsr5/time-management-go)
+- [igsr5/time-management-bolt](https://github.com/igsr5/time-management-bolt)
