@@ -30,7 +30,11 @@ freee API の `/api/v1/employees/{emp_id}/time_clocks` を叩く。
 また、 freee API で不正な勤怠登録とされる操作 (勤務をはじめる前に退勤するなど) はエラーを返す。  
 API を叩いて打刻した後、 Slash Command を実行したアカウントとしてメッセージ (「稼動します!」など) をチャンネルに投稿する。  
 
-![2022-01-26_12-15](https://user-images.githubusercontent.com/52068717/151122774-bc0af799-c335-4a96-ae20-d28cb3110497.png)
+実行後の Slack の例  
+![2022-01-26_12-15](https://user-images.githubusercontent.com/52068717/151122774-bc0af799-c335-4a96-ae20-d28cb3110497.png)  
+実行後の freee の例  
+![2022-01-26_12-15_1](https://user-images.githubusercontent.com/52068717/151127919-995aab64-2f1f-4ec8-a95a-d9e930fce2c0.png)
+
 
 ### `/clock_out`
 退勤する。
