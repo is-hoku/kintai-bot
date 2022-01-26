@@ -1,14 +1,13 @@
 # kintai-bot
 
 ## 背景
-僕のインターン先では、勤務 (休憩) の開始、終了時に Slack で報告し、1日の勤務終了時などに freee 人事労務で打刻する必要がある。つまり僕は毎回の勤務で、複数回同じことを入力しており、これはブラウザを起動してサービスにログインする作業も含めると、それなりに面倒になっていた。
-  
-一回の入力で全ての勤怠入力をするために、この Slack App を作成した。
+僕のインターン先では、勤務 (休憩) の開始、終了時に Slack で報告し、1日の勤務終了時などに freee 人事労務で打刻する必要がある。つまり僕は毎回の勤務で、複数回同じことを入力しており、これはブラウザを起動してサービスにログインする作業も含めると、それなりに面倒になっていた。  
+Slack から freee に打刻することは freee 公式の [Slack App](https://support.freee.co.jp/hc/ja/articles/360016610812) を使用することで実現できるが、「freee人事労務」アプリケーションとのチャットウィンドウでコマンドを実行する必要がある。これでは、勤怠を社内の人に報告すると同時に勤怠管理をしている freee に打刻するという欲求が満たされない。また、 Webhook を用いて freee に打刻したら Slack に勤怠を投稿するという仕様も考えられるが、ブラウザを起動して freee にログインするのは Slack を起動して投稿することに比べてやや面倒な点、そもそも freee 人事労務に Webhook 機能が実装されていない点から、 Slack に Slash Command で勤怠を投稿すると freee に打刻されるという仕様に落ち着いた。  
 
 ## アーキテクチャ
 Slack からのスラッシュコマンドを受信する Bolt Server ([is-hoku/kintai-bot-bolt](https://github.com/is-hoku/kintai-bot-bolt)) / freee API を叩く API Client とユーザの Slack に登録してある Email と freee ID、また Company ID と Token を紐付けるための DB, API Server / OAuth Client から構成される。
 
-![kintai-bot-figma](https://user-images.githubusercontent.com/52068717/151113691-66bc4745-b2cb-47b4-a9ef-3cc4c333dac4.png)
+![kintai-bot-figma](https://user-images.githubusercontent.com/52068717/151194468-d757be39-957d-40ba-b169-bf272487b662.png)
 
 ## 機能
 Slack App に実装されている Slash Command は以下。
