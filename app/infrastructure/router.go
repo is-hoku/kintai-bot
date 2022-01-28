@@ -18,9 +18,10 @@ func Init() {
 	userController := controllers.NewUserController(NewDBHandler())
 	tokenController := controllers.NewTokenController(NewTokenDBHandler())
 
-	//e.GET("/auth/:company_id", auth.Auth)
 	e.GET("/auth", tokenController.Auth)
 	e.GET("/oauth2/callback", tokenController.AuthCallback)
+	e.GET("/refresh", tokenController.Refresh)
+
 	e.GET("/user/:email", userController.Show)
 	//e.GET("/user/:email/clock_in", userController.Show, auth.Auth())
 	e.POST("/user", userController.Create)

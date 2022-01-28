@@ -1,0 +1,16 @@
+[
+	{
+		"update": "tokens",
+		"updates": [
+			{
+				"q": {},
+				"u": {
+					"$unset": {
+						"expiry": null
+					}
+				},
+				"multi": true
+			}
+		]
+	}
+]

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"kintai-bot/app/common"
@@ -9,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
@@ -24,10 +26,7 @@ type Company struct {
 	DisplayName string
 }
 
-type User struct {
-	ID        int
-	Companies []Company
-}
+var conf *oauth2.Config
 
 func contains(companies []Company, company_name string) (index int, err error) {
 	for i, v := range companies {
@@ -42,9 +41,6 @@ type AuthorizationCodeURL struct {
 	URL string `bson:"url" json:"url"`
 }
 
-var conf *oauth2.Config
-var ctx context.Context
-
 func (controller *TokenController) Auth(c echo.Context) error {
 	// if アクセストークンがDBにあればNULLをかえす
 	//filter, err := strconv.Atoi(os.Getenv("COMPANY_ID"))
@@ -53,7 +49,6 @@ func (controller *TokenController) Auth(c echo.Context) error {
 	//}
 	//token, err := controller.Interactor.TokenByCompanyID(filter)
 	//if (token.AccessToken != "") && (token.RefreshToken != "") {
-	//	fmt.Println("Access Token is already set")
 	//	return c.JSON(http.StatusOK, common.NewErrorResponse(200, "Access token is already set"))
 	//}
 	// else アクセストークンがなければURLをかえして認可、アクセストークンを取得
@@ -78,7 +73,7 @@ func (controller *TokenController) AuthCallback(c echo.Context) error {
 	oauth2Token, err := conf.Exchange(ctx, c.QueryParam("code"))
 	if err != nil {
 		log.Fatal(err)
-		return err
+		return c.JSON(http.StatusBadRequest, common.NewErrorResponse(400, "Failed to get the access token."))
 	}
 
 	// AcessToken と RefreshToken を保存
@@ -86,14 +81,48 @@ func (controller *TokenController) AuthCallback(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.NewErrorResponse(400, "No Parameters"))
 	}
-	t := domain.Token{CompanyID: companyID, AccessToken: oauth2Token.AccessToken, RefreshToken: oauth2Token.RefreshToken}
-	fmt.Println(t)
+	t := domain.Token{CompanyID: companyID, AccessToken: oauth2Token.AccessToken, RefreshToken: oauth2Token.RefreshToken, Expiry: oauth2Token.Expiry}
 	if err := c.Bind(&t); err != nil {
 		return c.JSON(http.StatusBadRequest, common.NewErrorResponse(400, "Invalid Request"))
 	}
 	if err := controller.Interactor.Update(t); err != nil {
 		return c.JSON(http.StatusInternalServerError, common.NewErrorResponse(500, "Could not update record"))
 	}
-	//return c.JSON(http.StatusCreated, t)
-	return c.JSON(http.StatusCreated, "Authorization successful.")
+	return c.JSON(http.StatusCreated, common.NewErrorResponse(200, "Authorization successful."))
+}
+
+func (controller *TokenController) Refresh(c echo.Context) error {
+	ctx := context.Background()
+	conf = &oauth2.Config{
+		ClientID:     os.Getenv("CLIENT_ID"),
+		ClientSecret: os.Getenv("CLIENT_SECRET"),
+		//Scopes:       []string{"SCOPE"},
+		RedirectURL: os.Getenv("REDIRECT_URL"),
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.secure.freee.co.jp/public_api/authorize",
+			TokenURL: "https://accounts.secure.freee.co.jp/public_api/token"},
+	}
+	filter, err := strconv.Atoi(os.Getenv("COMPANY_ID"))
+	tokenDomain, err := controller.Interactor.TokenByCompanyID(filter)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, common.NewErrorResponse(404, "Not Found"))
+	}
+
+	// アクセストークンの期限が切れていなければ何もしない
+	fmt.Println(tokenDomain.Expiry, time.Now())
+	fmt.Println(tokenDomain.Expiry.Before(time.Now()))
+	if tokenDomain.Expiry.After(time.Now()) {
+		fmt.Println("Not Refreshed")
+		return c.JSON(http.StatusOK, common.NewErrorResponse(200, "OK"))
+	}
+	token := oauth2.Token{AccessToken: tokenDomain.AccessToken, TokenType: "Bearer", RefreshToken: tokenDomain.RefreshToken, Expiry: tokenDomain.Expiry}
+	tokenSource := conf.TokenSource(ctx, &token)
+	client := oauth2.NewClient(ctx, tokenSource)
+	jsonBody := []byte(fmt.Sprintf(`{"grant_type":"refresh_token","client_id":%s,"client_secret":%s,"refresh_token":%s}`, os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"), tokenDomain.RefreshToken))
+	_, err = client.Post("https://accounts.secure.freee.co.jp/public_api/token", "application/x-www-form-urlencoded", bytes.NewReader(jsonBody))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, common.NewErrorResponse(400, "Failed to refresh the access token."))
+	}
+	fmt.Println("REFRESHED OK")
+	return c.JSON(http.StatusOK, common.NewErrorResponse(200, "Refreshed Access Token"))
 }

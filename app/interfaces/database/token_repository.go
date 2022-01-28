@@ -14,7 +14,7 @@ type TokenRepository struct {
 
 func (repo *TokenRepository) Update(t domain.Token) (err error) {
 	filter := bson.D{{"company_id", t.CompanyID}}
-	update := bson.D{{"$set", bson.D{{"access_token", t.AccessToken}, {"refresh_token", t.RefreshToken}}}}
+	update := bson.D{{"$set", bson.D{{"access_token", t.AccessToken}, {"refresh_token", t.RefreshToken}, {"expiry", t.Expiry}}}}
 	_, err = repo.UpdateOne(context.TODO(), filter, update)
 	return
 }
