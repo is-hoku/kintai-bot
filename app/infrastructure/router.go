@@ -18,12 +18,11 @@ func Init() {
 	userController := controllers.NewUserController(NewDBHandler())
 	tokenController := controllers.NewTokenController(NewTokenDBHandler())
 
-	e.GET("/auth", tokenController.Auth)
-	e.GET("/oauth2/callback", tokenController.AuthCallback)
-	e.GET("/refresh", tokenController.Refresh)
+	e.GET("/auth", tokenController.Auth)                    // 認可
+	e.GET("/oauth2/callback", tokenController.AuthCallback) // 認可コードが渡されアクセストークンなどを返す
+	e.GET("/refresh", tokenController.Refresh)              // アクセストークンのリフレッシュ
 
 	e.GET("/user/:email", userController.Show)
-	//e.GET("/user/:email/clock_in", userController.Show, auth.Auth())
 	e.POST("/user", userController.Create)
 
 	e.GET("/token/:company_id", tokenController.Show)

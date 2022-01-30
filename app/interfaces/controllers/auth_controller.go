@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"kintai-bot/app/common"
 	"kintai-bot/app/domain"
 	"log"
@@ -88,7 +90,7 @@ func (controller *TokenController) AuthCallback(c echo.Context) error {
 	if err := controller.Interactor.Update(t); err != nil {
 		return c.JSON(http.StatusInternalServerError, common.NewErrorResponse(500, "Could not update record"))
 	}
-	return c.JSON(http.StatusCreated, common.NewErrorResponse(200, "Authorization successful."))
+	return c.JSON(http.StatusCreated, "Authorization successful.")
 }
 
 func (controller *TokenController) Refresh(c echo.Context) error {
@@ -109,20 +111,40 @@ func (controller *TokenController) Refresh(c echo.Context) error {
 	}
 
 	// アクセストークンの期限が切れていなければ何もしない
-	fmt.Println(tokenDomain.Expiry, time.Now())
-	fmt.Println(tokenDomain.Expiry.Before(time.Now()))
-	if tokenDomain.Expiry.After(time.Now()) {
+	fmt.Println(tokenDomain.Expiry, time.Now().UTC())
+	fmt.Println(tokenDomain.Expiry.After(time.Now().UTC()))
+	if tokenDomain.Expiry.After(time.Now().UTC()) {
 		fmt.Println("Not Refreshed")
-		return c.JSON(http.StatusOK, common.NewErrorResponse(200, "OK"))
+		return c.JSON(http.StatusOK, tokenDomain)
 	}
+
+	// 期限切れならリフレッシュ
 	token := oauth2.Token{AccessToken: tokenDomain.AccessToken, TokenType: "Bearer", RefreshToken: tokenDomain.RefreshToken, Expiry: tokenDomain.Expiry}
 	tokenSource := conf.TokenSource(ctx, &token)
 	client := oauth2.NewClient(ctx, tokenSource)
 	jsonBody := []byte(fmt.Sprintf(`{"grant_type":"refresh_token","client_id":%s,"client_secret":%s,"refresh_token":%s}`, os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"), tokenDomain.RefreshToken))
-	_, err = client.Post("https://accounts.secure.freee.co.jp/public_api/token", "application/x-www-form-urlencoded", bytes.NewReader(jsonBody))
+	resp, err := client.Post("https://accounts.secure.freee.co.jp/public_api/token", "application/x-www-form-urlencoded", bytes.NewReader(jsonBody))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.NewErrorResponse(400, "Failed to refresh the access token."))
 	}
+	defer resp.Body.Close()
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, common.NewErrorResponse(500, "Faild to parse the response body"))
+	}
+	fmt.Println(respBody)
+
+	// AcessToken と RefreshToken を保存
+	var resToken domain.Token
+	json.Unmarshal(respBody, &resToken)
+	t := domain.Token{CompanyID: filter, AccessToken: resToken.AccessToken, RefreshToken: resToken.RefreshToken, Expiry: resToken.Expiry}
+	if err := c.Bind(&t); err != nil {
+		return c.JSON(http.StatusBadRequest, common.NewErrorResponse(400, "Invalid Request"))
+	}
+	if err := controller.Interactor.Update(t); err != nil {
+		return c.JSON(http.StatusInternalServerError, common.NewErrorResponse(500, "Could not update record"))
+	}
+
 	fmt.Println("REFRESHED OK")
-	return c.JSON(http.StatusOK, common.NewErrorResponse(200, "Refreshed Access Token"))
+	return c.JSON(http.StatusOK, t)
 }
