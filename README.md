@@ -59,13 +59,13 @@ db コンテナに入って以下を実行してトークンの Field を作成�
 ```
 # mongo
 > use tokens
-> db.tokens.insert({company_id:[COMPANY_ID],access_token:"",refresh_token:"",expiry:"2020-12-02T15:04:05+09:00"})
+> db.tokens.insert({company_id:COMPANY_ID,access_token:"",refresh_token:"",expiry:"2020-12-02T15:04:05+09:00"})
 ```
 `/user` に以下のようなボディで POST してユーザを作成。  
 ```
 {
   "email": "korehatestuserdesu@gmail.com",
-  "freee_id": [USER_ID]
+  "freee_id": USER_ID
 }
 ```
 
