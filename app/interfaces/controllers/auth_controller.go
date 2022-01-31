@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -111,10 +110,7 @@ func (controller *TokenController) Refresh(c echo.Context) error {
 	}
 
 	// アクセストークンの期限が切れていなければ何もしない
-	fmt.Println(tokenDomain.Expiry, time.Now().UTC())
-	fmt.Println(tokenDomain.Expiry.After(time.Now().UTC()))
 	if tokenDomain.Expiry.After(time.Now().UTC()) {
-		fmt.Println("Not Refreshed")
 		return c.JSON(http.StatusOK, tokenDomain)
 	}
 
@@ -122,8 +118,12 @@ func (controller *TokenController) Refresh(c echo.Context) error {
 	token := oauth2.Token{AccessToken: tokenDomain.AccessToken, TokenType: "Bearer", RefreshToken: tokenDomain.RefreshToken, Expiry: tokenDomain.Expiry}
 	tokenSource := conf.TokenSource(ctx, &token)
 	client := oauth2.NewClient(ctx, tokenSource)
-	jsonBody := []byte(fmt.Sprintf(`{"grant_type":"refresh_token","client_id":%s,"client_secret":%s,"refresh_token":%s}`, os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"), tokenDomain.RefreshToken))
-	resp, err := client.Post("https://accounts.secure.freee.co.jp/public_api/token", "application/x-www-form-urlencoded", bytes.NewReader(jsonBody))
+	url := fmt.Sprintf("https://accounts.secure.freee.co.jp/public_api/token?grant_type=%s&client_id=%s&client_secret=%s&refresh_token=%s", "refresh_token", os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"), tokenDomain.RefreshToken)
+	req, err := http.NewRequest("POST", url, nil)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", tokenDomain.AccessToken))
+	expiry := time.Now().UTC().Add(24 * time.Hour)
+	resp, err := client.Do(req)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.NewErrorResponse(400, "Failed to refresh the access token."))
 	}
@@ -132,12 +132,11 @@ func (controller *TokenController) Refresh(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, common.NewErrorResponse(500, "Faild to parse the response body"))
 	}
-	fmt.Println(respBody)
 
 	// AcessToken と RefreshToken を保存
 	var resToken domain.Token
 	json.Unmarshal(respBody, &resToken)
-	t := domain.Token{CompanyID: filter, AccessToken: resToken.AccessToken, RefreshToken: resToken.RefreshToken, Expiry: resToken.Expiry}
+	t := domain.Token{CompanyID: filter, AccessToken: resToken.AccessToken, RefreshToken: resToken.RefreshToken, Expiry: expiry}
 	if err := c.Bind(&t); err != nil {
 		return c.JSON(http.StatusBadRequest, common.NewErrorResponse(400, "Invalid Request"))
 	}
@@ -145,6 +144,5 @@ func (controller *TokenController) Refresh(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, common.NewErrorResponse(500, "Could not update record"))
 	}
 
-	fmt.Println("REFRESHED OK")
 	return c.JSON(http.StatusOK, t)
 }
