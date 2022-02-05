@@ -125,7 +125,7 @@ func (controller *TokenController) Refresh(c echo.Context) error {
 	expiry := time.Now().UTC().Add(24 * time.Hour)
 	resp, err := client.Do(req)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, common.NewErrorResponse(400, "Failed to refresh the access token."))
+		return c.JSON(http.StatusInternalServerError, common.NewErrorResponse(500, "Failed to refresh the access token."))
 	}
 	defer resp.Body.Close()
 	respBody, err := io.ReadAll(resp.Body)
@@ -138,7 +138,10 @@ func (controller *TokenController) Refresh(c echo.Context) error {
 	json.Unmarshal(respBody, &resToken)
 	t := domain.Token{CompanyID: filter, AccessToken: resToken.AccessToken, RefreshToken: resToken.RefreshToken, Expiry: expiry}
 	if err := c.Bind(&t); err != nil {
-		return c.JSON(http.StatusBadRequest, common.NewErrorResponse(400, "Invalid Request"))
+		return c.JSON(http.StatusInternalServerError, common.NewErrorResponse(500, "Invalid Token Structure"))
+	}
+	if t.AccessToken == "" || t.RefreshToken == "" {
+		return c.JSON(http.StatusInternalServerError, common.NewErrorResponse(500, "Returned AcessToken is empty. Try it again!"))
 	}
 	if err := controller.Interactor.Update(t); err != nil {
 		return c.JSON(http.StatusInternalServerError, common.NewErrorResponse(500, "Could not update record"))
