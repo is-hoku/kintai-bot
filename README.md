@@ -7,7 +7,9 @@ Slack から freee に打刻することは freee 公式の [Slack App](https://
 ## アーキテクチャ
 Slack からのスラッシュコマンドを受信する Bolt Server ([is-hoku/kintai-bot-bolt](https://github.com/is-hoku/kintai-bot-bolt)) / freee API を叩く API Client とユーザの Slack に登録してある Email と freee ID、また Company ID と Token を紐付けるための DB, API Server / OAuth Client から構成される。
 
-![kintai-bot-figma](https://user-images.githubusercontent.com/52068717/151194468-d757be39-957d-40ba-b169-bf272487b662.png)
+![kintai-bot](https://user-images.githubusercontent.com/52068717/155570442-efadf1a0-4a66-48ea-8431-8cef4339b14e.png)
+
+
 
 ## 機能
 Slack App に実装されている Slash Command は以下。
