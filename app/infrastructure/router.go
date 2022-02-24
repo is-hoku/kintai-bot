@@ -20,13 +20,14 @@ func Init() {
 
 	e.GET("/auth", tokenController.Auth)                    // 認可
 	e.GET("/oauth2/callback", tokenController.AuthCallback) // 認可コードが渡されアクセストークンなどを返す
-	e.GET("/refresh", tokenController.Refresh)              // アクセストークンのリフレッシュ
 
 	e.GET("/user/:email", userController.Show)
 	e.POST("/user", userController.Create)
 
 	e.GET("/token/:company_id", tokenController.Show)
 	e.PUT("/token", tokenController.Update)
+
+	e.POST("/dakoku/:freee_id", tokenController.Dakoku) // freee API
 
 	serverPort := os.Getenv("SERVER_PORT")
 	e.Logger.Fatal(e.Start(serverPort))
