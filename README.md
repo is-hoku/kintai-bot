@@ -5,11 +5,9 @@
 Slack から freee に打刻することは freee 公式の [Slack App](https://support.freee.co.jp/hc/ja/articles/360016610812) を使用することで実現できるが、「freee人事労務」アプリケーションとのチャットウィンドウでコマンドを実行する必要がある。これでは、勤怠を社内の人に報告すると同時に勤怠管理をしている freee に打刻するという欲求が満たされない。また、 Webhook を用いて freee に打刻したら Slack に勤怠を投稿するという仕様も考えられるが、ブラウザを起動して freee にログインするのは Slack を起動して投稿することに比べてやや面倒な点、そもそも freee 人事労務に Webhook 機能が実装されていない点から、 Slack に Slash Command で勤怠を投稿すると freee に打刻されるという仕様に落ち着いた。  
 
 ## アーキテクチャ
-Slack からのスラッシュコマンドを受信する Bolt Server ([is-hoku/kintai-bot-bolt](https://github.com/is-hoku/kintai-bot-bolt)) / freee API を叩く API Client とユーザの Slack に登録してある Email と freee ID、また Company ID と Token を紐付けるための DB, API Server / OAuth Client から構成される。
+Slack からのスラッシュコマンドを受信する Bolt Server ([is-hoku/kintai-bot-bolt](https://github.com/is-hoku/kintai-bot-bolt)) / API Server (freee API を叩く API (OAuth) Client) / DB Server から構成される。
 
-![kintai-bot](https://user-images.githubusercontent.com/52068717/155570442-efadf1a0-4a66-48ea-8431-8cef4339b14e.png)
-
-
+![kintai-bot](https://user-images.githubusercontent.com/52068717/155640630-b5ba17d5-9883-4c36-9ee5-4833df89cf5f.png)
 
 ## 機能
 Slack App に実装されている Slash Command は以下。
