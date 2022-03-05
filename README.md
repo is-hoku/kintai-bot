@@ -69,6 +69,6 @@ db コンテナに入って以下を実行してトークンの Field を作成�
 }
 ```
 
-## Inspirations and References
+## Inspirations
 - [igsr5/time-management-go](https://github.com/igsr5/time-management-go)
 - [igsr5/time-management-bolt](https://github.com/igsr5/time-management-bolt)
